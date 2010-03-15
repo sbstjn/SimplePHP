@@ -1,8 +1,8 @@
 <?php
 
 /**
- * SiFile handles file based actions
- * @package SimplePHPTools
+ * File handles file based actions
+ * @package SimplePHP
  * @author Sebastian Müller
  * @version 0.1
  * @link http://github.com/hazelcode/SimplePHPTools
@@ -22,7 +22,7 @@ class SiFile {
 	}
 	
 	/**
-	 * Write data to file
+	 * Write data to file (wrapper for put)
 	 * @param string $file
 	 * @param string $content
 	 */
@@ -31,7 +31,7 @@ class SiFile {
 	}
 
 	/**
-	 * Write data to file
+	 * Write data to file (wrapper for put)
 	 * @param string $file
 	 * @param string $content
 	 */
@@ -45,18 +45,29 @@ class SiFile {
 	 * @param int $length
 	 * @return string
 	 */
-	static function getContent($file, $length = 512) {
+	static function get($file, $length = 512) {
 		$handle  = fopen ($file, "r");
 		return fread ($handle, $length);
 	}
 
 	/**
-	 * Get content from file
+	 * Get content from file (wrapper for get)
 	 * @param string $file
 	 * @param int $length
 	 * @return string
 	 */
 	static function load($file, $length = 512) {
+		$handle  = fopen ($file, "r");
+		return fread ($handle, $length);
+	}
+
+	/**
+	 * Get content from file (wrapper for get)
+	 * @param string $file
+	 * @param int $length
+	 * @return string
+	 */
+	static function getContent($file, $length = 512) {
 		$handle  = fopen ($file, "r");
 		return fread ($handle, $length);
 	}
