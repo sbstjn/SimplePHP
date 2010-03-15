@@ -7,6 +7,7 @@
  * @version 0.1
  * @link http://github.com/hazelcode/SimplePHP
  */
+ 
 class A {
 
     /**
@@ -34,7 +35,9 @@ class A {
         $return = implode(',', array_keys(A::first($array))) . ";\n";
         
         foreach ($array as $line)
-            $return = $return . implode(',', array_keys($line)) . ";\n";
+            $return = $return . implode(',', $line) . ";\n";
+            
+        return $return;
     }
 
 }
