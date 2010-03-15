@@ -23,7 +23,7 @@ class File {
      */
     static function __checkFile($file) {
     	if (!file_exists($file))
-    		throw new Exception('File not found: ' . $file);
+            throw new Exception('File not found: ' . $file);
     		
     	return true;
     }
