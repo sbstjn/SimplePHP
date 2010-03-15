@@ -8,7 +8,7 @@
  * @link http://github.com/hazelcode/SimplePHP
  */
 
-class File {
+class F {
 
     /**
      * construct is not used
