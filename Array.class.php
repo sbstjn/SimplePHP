@@ -27,6 +27,15 @@ class A {
     }
 
     /**
+     * Trim lines
+     * @param array $array
+     * @return array
+     */
+    static function trim($array) {
+        return array_map('trim', $array);
+    }
+
+    /**
      * Convert array to CSV string
      * @param array $array
      * @return string
