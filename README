@@ -1,3 +1,9 @@
 SimplePHP Source
 
 A bunch of PHP classes making everyday code easier and comfortable. Static functions for simple access of common uses.
+
+Add the following lines to your code to use SimplePHP's functions:
+
+// Define SimplePHP's absolute path and load init script
+define ('PATH_SIMPLEPHP', YOUR_ABSOLUTE_PATH . 'to/SimplePHP/');
+require_once (PATH_SIMPLEPHP . 'init.php');
