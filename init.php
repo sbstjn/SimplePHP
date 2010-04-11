@@ -2,7 +2,7 @@
 
 /**
  * SimplePHP
- ***
+ **
  * To use SimplePHP please add the following lines to your code:
  *
  * <?php
@@ -18,6 +18,7 @@
  * @link http://github.com/hazelcode/SimplePHP
  */
  
+require_once PATH_SIMPLEPHP . 'General.class.php';
 require_once PATH_SIMPLEPHP . 'Array.class.php';
 require_once PATH_SIMPLEPHP . 'File.class.php';
 require_once PATH_SIMPLEPHP . 'SQL.class.php';
