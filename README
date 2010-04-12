@@ -8,5 +8,5 @@ Add the following lines to your code to use SimplePHP's functions:
 
 	<?php
 	// Define SimplePHP's absolute path and load init script
-	define ('PATH_SIMPLEPHP', YOUR_ABSOLUTE_PATH . 'to/SimplePHP/');
-	require_once (PATH_SIMPLEPHP . 'init.php');
+	define('PATH_SIMPLEPHP', '/your/absolute/path/to/SimplePHP/');
+	require_once PATH_SIMPLEPHP . 'init.php';
