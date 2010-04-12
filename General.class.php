@@ -20,5 +20,36 @@ class G {
 			return null;
 		return $_COOKIE[$name];
 	}
+	
+	/**
+	 * Debug an object or an array
+	 * @param mixed $array or an object
+	 */
+	static function debug($array) {
+		$string = '<pre>';
+		foreach (debug_backtrace() as $item)
+		    $string = $string . $item['function'] . ' - ' . basename($item['file']) . ':' . $item['line'] . ' - '.dirname($item['file']) . "\n";
+		$string = $string . print_r($array, true) . '</pre>';
+		
+	    echo $string;
+	}
+	
+	/**
+	 * Check if string is utf8
+	 * @param string $string
+	 * @retun bool
+	 */
+	static function isUTF8($string) {
+		return seems_utf8($string);
+	}
+	
+	/**
+	 * Create an url compatible string 
+	 * @param string $str
+	 * @return string
+	 */
+	static function toSlug($str) {
+		return sanitize_title_with_dashes($str);
+	}
 
 }

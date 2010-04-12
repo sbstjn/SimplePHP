@@ -17,7 +17,8 @@
  * @version 0.1
  * @link http://github.com/hazelcode/SimplePHP
  */
- 
+
+require_once PATH_SIMPLEPHP . 'init.externalFunctions.php'; 
 require_once PATH_SIMPLEPHP . 'General.class.php';
 require_once PATH_SIMPLEPHP . 'Array.class.php';
 require_once PATH_SIMPLEPHP . 'File.class.php';
