@@ -31,7 +31,7 @@ class A {
      * @param array $array
      * @return array
      */
-    static function trim($array) {
+    static function trimItems($array) {
         return array_map('trim', $array);
     }
 
