@@ -68,7 +68,7 @@ class F {
     static function get($file, $length = FILE_SIZE_FULL) {
     	self::__checkFile($file);
     	
-        $handle = fopen($file, ($length == FILE_SIZE_FULL ? filesize($file) : $length));
+        $handle = fopen($file, (FILE_SIZE_FULL == $length ? filesize($file) : $length));
         return fread ($handle, $length);
     }
 

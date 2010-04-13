@@ -23,7 +23,7 @@ class SQL {
      * @param string $query
      * @return mixed sql result
      */
-    static function __handleQuery($query) {
+    private static function __handleQuery($query) {
         return mysql_query($query);
     }
     
@@ -64,9 +64,9 @@ class SQL {
         
         foreach ($where as $key => $value) {
             if (stristr($value, '*')) {
-                $whereOptions[] = ' `' . self::__escapeString($key) . "` LIKE '" . self::__escapeString(str_replace('*', '%', $value)) . "' ";
+                $whereOptions[] = '`' . self::__escapeString($key) . '` LIKE \'' . self::__escapeString(str_replace('*', '%', $value)) . '\'';
             } else {
-                $whereOptions[] = ' `' . self::__escapeString($key) . "` = '" . self::__escapeString($value) . "' ";
+                $whereOptions[] = '`' . self::__escapeString($key) . '` = \'' . self::__escapeString($value) . '\'';
             }
         }
         
@@ -123,7 +123,7 @@ class SQL {
         $update = array();
 
         foreach(array_keys($data) as $fieldname)
-            $update[] = ' `' . self::__escapeString($fieldname) . "` = '" . self::__escapeString($data[$fieldname]) . "'";
+            $update[] = '`' . self::__escapeString($fieldname) . '` = \'' . self::__escapeString($data[$fieldname]) . '\'';
             
         self::__handleQuery(self::__parseWhere('UPDATE `' . $table . '` SET ' . implode(', ', $update), $where));
         return true;
@@ -194,7 +194,7 @@ class SQL {
     static function newLine($table, $data) {
         $d = self::__escapeData($data);        
         
-        self::__handleQuery('INSERT INTO `' . $table . '` (`' . implode('`, `', $d['keys']) . "`) VALUES ('" . implode("', '", $d['data'])."') ");
+        self::__handleQuery('INSERT INTO `' . $table . '` (`' . implode('`, `', $d['keys']) . '`) VALUES (\'' . implode('\', \'', $d['data']).'\') ');
         return mysql_insert_id();
     }
     
