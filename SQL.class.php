@@ -59,7 +59,7 @@ class SQL {
     private static function __parseWhere($query, $where = array()) {
         if (count($where) == 0)
             return $query;
-            
+           
         $whereOptions = array();
         
         foreach ($where as $key => $value) {
@@ -205,7 +205,7 @@ class SQL {
      * @return mixed
      */
     static function addLine($table, $data) {
-        return self::newLine($table, $data, $return);
+        return self::newLine($table, $data);
     }
     
     /**
@@ -215,7 +215,7 @@ class SQL {
      * @return mixed
      */
     static function newRow($table, $data) {
-        return self::newLine($table, $data, $return);
+        return self::newLine($table, $data);
     }
     
     /**
@@ -225,7 +225,7 @@ class SQL {
      * @return mixed
      */
     static function addRow($table, $data) {
-        return self::newLine($table, $data, $return);
+        return self::newLine($table, $data);
     }	
     
     /**

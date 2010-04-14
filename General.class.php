@@ -22,6 +22,17 @@ class G {
 	}
 	
 	/**
+	 * Set cookie
+	 * @param string $name
+	 * @param string $value
+	 * @param int $time
+	 * @param string $domain
+	 */
+	static function setCookie($name, $value, $time, $domain) {
+		setcookie($name, $value, time() + $time, "/", "." . $domain);
+	}
+	
+	/**
 	 * Debug an object or an array
 	 * @param mixed $array or an object
 	 */

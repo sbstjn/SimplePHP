@@ -35,6 +35,24 @@ class A {
         return array_map('trim', $array);
     }
 
+	/**
+	 * Check if array has items
+	 * @param array $array
+	 * @return bool
+	 */
+	static function hasItems($array) {
+		return !empty($array);
+	}
+
+	/**
+	 * Check if array is empty
+	 * @param array $array
+	 * @return bool
+	 */
+	static function isEmpty($array) {
+		return empty($array);
+	}
+
     /**
      * Convert array to CSV string
      * @param array $array
