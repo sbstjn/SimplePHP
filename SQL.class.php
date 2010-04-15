@@ -92,24 +92,29 @@ class SQL {
      * Insert row and replace if needed
      * @param string $table
      * @param array $data
+     * @param array $keys
      */
-    static function insertAndReplace($table, $data) {
-        $d = self::__escapeData($data);        
+    static function insertAndReplace($table, $data, $keys) {
+        $d = self::__escapeData($data);
+        $k = self::__escapeData($keys);
         
         $keys = array();
-        foreach ($d['data'] as $key => $data) 
+        foreach ($k['data'] as $key => $data)
             $keys[] = '`'.$key.'` = \''.$data.'\'';
         
-        self::__handleQuery('INSERT INTO `' . $table . '` (`' . implode('`, `', $d['keys']) . '`) VALUES (\'' . implode("', '", $d['data']) . '\') ON DUPLICATE KEY UPDATE ' . implode(', ', $keys) . ';');
-    }    
+        self::__handleQuery('INSERT INTO `' . $table . '` (`' . implode('`, `', $d['keys']) . '`) VALUES (\'' . implode("', '", $d['data']) . '\') ON DUPLICATE KEY UPDATE ' . implode(', ', $keys));
+    }  
     
     /**
-     * Insert array of lines into table (wrapper for addArrayOfLines)
+     * Replaces data in table - $data must contain all columns of $table
      * @param string $table
-     * @param array $lines
-     */	
-    static function addArrayOfRows($table, $lines) {
-        return self::AddArrayOfLines($table, $lines);
+     * @param array $data
+     */
+    static function replaceInto($table, $data) {
+        $updates = array();
+        foreach(array_keys($data) as $fieldname)
+            $updates[] = '`' . mysql_real_escape_string($fieldname) . '` = \'' . mysql_real_escape_string($data[$fieldname]) . '\'';
+        return self::__handleQuery('REPLACE INTO `' . $table . '` SET ' . implode(', ', $updates));
     }
     
     /**
@@ -238,6 +243,15 @@ class SQL {
         
         foreach ($table as $line)
             self::newLine($table, $line);
+    }
+    
+    /**
+     * Insert array of lines into table (wrapper for addArrayOfLines)
+     * @param string $table
+     * @param array $lines
+     */	
+    static function addArrayOfRows($table, $lines) {
+        return self::AddArrayOfLines($table, $lines);
     }
     
     /**
