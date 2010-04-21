@@ -13,7 +13,7 @@ class SQL {
     /**
      * construct is not used
      */
-    public function __construct() {
+    function __construct() {
     
     }
     
@@ -23,7 +23,7 @@ class SQL {
      * @param string $query
      * @return mixed sql result
      */
-    private static function __handleQuery($query) {
+    static function __handleQuery($query) {
         return mysql_query($query);
     }
     
@@ -32,7 +32,7 @@ class SQL {
      * @param array $data
      * @return array
      */
-    private static function __escapeData($data) {
+    static function __escapeData($data) {
         $keys = array_map('mysql_real_escape_string', array_keys($data));
         $data = array_map('mysql_real_escape_string', $data);
         
@@ -44,7 +44,7 @@ class SQL {
      * @param string $string
      * @return string
      */
-    private static function __escapeString($string) {
+    static function __escapeString($string) {
         $string = mysql_real_escape_string($string);
         
         return $string;
@@ -56,17 +56,20 @@ class SQL {
      * @param array $where key => value
      * @return string query
      */
-    private static function __parseWhere($query, $where = array()) {
+    static function __parseWhere($query, $where = array()) {
         if (count($where) == 0)
             return $query;
            
         $whereOptions = array();
         
         foreach ($where as $key => $value) {
-            if (stristr($value, '*')) {
-                $whereOptions[] = '`' . self::__escapeString($key) . '` LIKE \'' . self::__escapeString(str_replace('*', '%', $value)) . '\'';
+            $tmpKey = self::__escapeTableField($key);
+            if (substr($value, 0, 3) == 'IN ') {
+                $whereOptions[] = $tmpKey . ' ' . $value;
+            } elseif (stristr($value, '*')) {
+                $whereOptions[] = $tmpKey . ' LIKE \'' . self::__escapeString(str_replace('*', '%', $value)) . '\'';
             } else {
-                $whereOptions[] = '`' . self::__escapeString($key) . '` = \'' . self::__escapeString($value) . '\'';
+                $whereOptions[] = $tmpKey . ' = \'' . self::__escapeString($value) . '\'';
             }
         }
         
@@ -74,12 +77,35 @@ class SQL {
     }    
     
     /**
+     * Try to escape table field as good as possible
+     * @param string $key
+     * @return string
+     */
+    static function __escapeTableField($key) {
+        if (stristr($key, '.') && stristr($key, '('))
+            return str_replace(array('.', '(', ')'), array('`.`', '(`', '`)'), $key);
+        elseif (stristr($key, '.'))
+            return '`' . str_replace('.', '`.`', $key) . '`';
+        return '`' . $key . '`';
+    }
+    
+    /**
+     * Create select statement for given $key as $alias
+     * @param string $key
+     * @param string $alias
+     * @return string
+     */
+    static function __parseSelectItem($key, $alias) {
+        return self::__escapeTableField(self::__escapeString($key)) . ' as \'' . self::__escapeString($alias) . '\'';
+    }
+    
+    /**
      * Select all lines as array by query
      * @param string $q
      * @return array
      */
-    private static function __allLinesAsArray($q) {
-        $result = self::__handleQuery($q);        
+    static function __allLinesAsArray($q) {
+        $result = self::__handleQuery($q) or die($q . '<br />' . mysql_error());        
         $return = array();
         
         while ($item = mysql_fetch_array($result, MYSQL_ASSOC))
@@ -261,7 +287,8 @@ class SQL {
      * @return array
      */
     static function getLine($table, $where = array()) {
-        return mysql_fetch_array(self::__handleQuery(self::__parseWhere('SELECT * FROM `' . $table . '` ', $where)), MYSQL_ASSOC);
+        $q = self::__parseWhere('SELECT * FROM `' . $table . '` ', $where);
+        return mysql_fetch_array(self::__handleQuery($q), MYSQL_ASSOC);
     }
     
     /**
