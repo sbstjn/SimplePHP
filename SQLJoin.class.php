@@ -23,7 +23,6 @@ class SQLJoin {
     function __construct($tableName) {
         $this->base = $tableName;
         $this->joinedTables = array();
-        
         $this->addTable($tableName);
     }
     
@@ -51,15 +50,10 @@ class SQLJoin {
         $args = func_get_args();
         
         foreach ($args as $arg) {
-            if (is_array($arg)) {
-                $key   = array_shift(array_keys($arg));
-                $value = array_shift($arg);
-                
-                $key   = $this->__parseTableFieldKey($key);
-                $this->returnList[$key] = $value;
-            } elseif (stristr($arg, '*')) {
+            if (is_array($arg))
+                $this->returnList[$this->__parseTableFieldKey(array_shift(array_keys($arg)))] = array_shift($arg);
+            elseif (stristr($arg, '*'))
                 $this->returnAllList[] = $this->__parseTableFieldKey($arg);
-            }
         }
 
     }
@@ -78,11 +72,9 @@ class SQLJoin {
      * @param string $key
      */
     function __parseTableFieldKey($key) {
-        $pattern = '/[(0-9)*]\#/sU';
-        preg_match($pattern, $key, $return);
-        $tableIndex = substr($return[0], 0, 1);
+        preg_match('/[(0-9)*]\#/sU', $key, $return);
 
-        return str_replace($return[0], $this->joinedTables[$tableIndex]['hash'] . '.', $key);
+        return str_replace($return[0], $this->joinedTables[substr($return[0], 0, 1)]['hash'] . '.', $key);
     }
     
     /**
@@ -125,10 +117,8 @@ class SQLJoin {
                 
             $join[] = $this->__parseJoinTable($t);
         }
-        $q = $q . implode(" ", $join);
-        $q = SQL::__parseWhere($q, $this->where);
         
-        return $q;
+        return SQL::__parseWhere($q . implode(" ", $join), $this->where);
     }
     
     /**
