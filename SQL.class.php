@@ -115,7 +115,7 @@ class SQL {
      * @return array
      */
     static function __allLinesAsArray($q) {
-        $result = self::__handleQuery($q) or die($q . '<br />' . mysql_error());        
+        $result = self::__handleQuery($q);        
         $return = array();
         
         while ($item = mysql_fetch_array($result, MYSQL_ASSOC))
