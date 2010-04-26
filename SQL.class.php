@@ -72,7 +72,9 @@ class SQL {
                 $whereOptions[] = $tmpKey . ' >= ' . (int)substr($value, 2);
             } elseif (substr($value, 0, 1) == '>') {
                 $whereOptions[] = $tmpKey . ' > ' . (int)substr($value, 1);
-            } elseif (stristr($value, '*')) {
+            } elseif (substr($value, 0, 1) == '<') {
+                $whereOptions[] = $tmpKey . ' < ' . (int)substr($value, 1);
+	    } elseif (stristr($value, '*')) {
                 $whereOptions[] = $tmpKey . ' LIKE \'' . self::__escapeString(str_replace('*', '%', $value)) . '\'';
             } else {
                 $whereOptions[] = $tmpKey . ' = \'' . self::__escapeString($value) . '\'';
