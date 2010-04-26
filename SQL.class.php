@@ -24,6 +24,9 @@ class SQL {
      * @return mixed sql result
      */
     static function __handleQuery($query) {
+        if (defined("SQL_DEBUG")) 
+            G::debug($query);
+            
         return mysql_query($query);
     }
     
