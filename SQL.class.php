@@ -66,6 +66,8 @@ class SQL {
             $tmpKey = self::__escapeTableField($key);
             if (substr($value, 0, 1) == '!') {
                 $whereOptions[] = $tmpKey . ' != ' . (int)substr($value, 1);
+            } elseif ($value === null) {
+                $whereOptions[] = $tmpKey . ' IS NULL';
             } elseif (substr($value, 0, 3) == 'IN ') {
                 $whereOptions[] = $tmpKey . ' ' . $value;
             } elseif (substr($value, 0, 2) == '>=') {
