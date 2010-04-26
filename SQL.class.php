@@ -64,7 +64,9 @@ class SQL {
         
         foreach ($where as $key => $value) {
             $tmpKey = self::__escapeTableField($key);
-            if (substr($value, 0, 3) == 'IN ') {
+            if (substr($value, 0, 1) == '!') {
+                $whereOptions[] = $tmpKey . ' != ' . (int)substr($value, 1);
+            } elseif (substr($value, 0, 3) == 'IN ') {
                 $whereOptions[] = $tmpKey . ' ' . $value;
             } elseif (substr($value, 0, 2) == '>=') {
                 $whereOptions[] = $tmpKey . ' >= ' . (int)substr($value, 2);
@@ -413,7 +415,18 @@ class SQL {
      */
     static function remove($table, $where = array()) {
         return self::__handleQuery(self::__parseWhere('DELETE FROM `' . $table . '` ', $where));
-    }    
+    }  
+    
+    /**
+     * Select rows from table with given offset
+     * @param string $table
+     * @param array $where
+     * @param int $offset
+     * @param int $limit
+     */
+    static function getLinesWithOffset($table, $where, $offset = 0, $limit = 50000) {
+        return self::__allLinesAsArray(self::__parseWhere('SELECT * FROM `' . $table . '` ', $where) . ' LIMIT ' . (int)$offset . ',' . (int)$limit);
+    }  
 
     /**
      * Delete rows from table
