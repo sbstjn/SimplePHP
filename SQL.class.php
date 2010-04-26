@@ -72,6 +72,8 @@ class SQL {
                 $whereOptions[] = $tmpKey . ' >= ' . (int)substr($value, 2);
             } elseif (substr($value, 0, 1) == '>') {
                 $whereOptions[] = $tmpKey . ' > ' . (int)substr($value, 1);
+            } elseif (substr($value, 0, 2) == '<=') {
+                $whereOptions[] = $tmpKey . ' <= ' . (int)substr($value, 2);
             } elseif (substr($value, 0, 1) == '<') {
                 $whereOptions[] = $tmpKey . ' < ' . (int)substr($value, 1);
 	    } elseif (stristr($value, '*')) {
