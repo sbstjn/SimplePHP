@@ -99,6 +99,8 @@ class SQL {
     static function __escapeTableField($key) {
         if (stristr($key, '.') && stristr($key, '('))
             return str_replace(array('.', '(', ')'), array('`.`', '(`', '`)'), $key);
+        elseif (stristr($key, '(') && !stristr($key, '.'))
+            return str_replace(array('(', ')'), array('(`', '`)'), $key);
         elseif (stristr($key, '.'))
             return '`' . str_replace('.', '`.`', $key) . '`';
         return '`' . $key . '`';
