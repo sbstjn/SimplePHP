@@ -24,6 +24,9 @@ class SQL {
      * @return mixed sql result
      */
     static function __handleQuery($query) {
+        if (defined("SQL_DEBUG")) 
+            G::debug($query);
+            
         return mysql_query($query);
     }
     
@@ -66,6 +69,8 @@ class SQL {
             $tmpKey = self::__escapeTableField($key);
             if (substr($value, 0, 1) == '!') {
                 $whereOptions[] = $tmpKey . ' != ' . (int)substr($value, 1);
+            } elseif ($value === null) {
+                $whereOptions[] = $tmpKey . ' IS NULL';
             } elseif (substr($value, 0, 3) == 'IN ') {
                 $whereOptions[] = $tmpKey . ' ' . $value;
             } elseif (substr($value, 0, 2) == '>=') {
@@ -76,7 +81,7 @@ class SQL {
                 $whereOptions[] = $tmpKey . ' <= ' . (int)substr($value, 2);
             } elseif (substr($value, 0, 1) == '<') {
                 $whereOptions[] = $tmpKey . ' < ' . (int)substr($value, 1);
-	    } elseif (stristr($value, '*')) {
+        } elseif (stristr($value, '*')) {
                 $whereOptions[] = $tmpKey . ' LIKE \'' . self::__escapeString(str_replace('*', '%', $value)) . '\'';
             } else {
                 $whereOptions[] = $tmpKey . ' = \'' . self::__escapeString($value) . '\'';
@@ -94,6 +99,8 @@ class SQL {
     static function __escapeTableField($key) {
         if (stristr($key, '.') && stristr($key, '('))
             return str_replace(array('.', '(', ')'), array('`.`', '(`', '`)'), $key);
+        elseif (stristr($key, '(') && !stristr($key, '.'))
+            return str_replace(array('(', ')'), array('(`', '`)'), $key);
         elseif (stristr($key, '.'))
             return '`' . str_replace('.', '`.`', $key) . '`';
         return '`' . $key . '`';
