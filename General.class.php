@@ -23,6 +23,10 @@ class G {
         echo $string;
     }
 
+    static function urlTitle($site, $page, $url) {
+        return $site . ' - ' . $page . ' | ' . $url;
+    }
+
     /**
      * Check if cookie is found and return value 
      * @param string $name
@@ -52,6 +56,17 @@ class G {
     static function redirectTo($url) {
         header('location: ' . $url);
         die();
+    }
+    
+    /**
+     * Perform various empty checks on a string
+     * @param string $str
+     * @return bool
+     */
+    static function isEmpty($str) {
+        if (!$str || $str == null || $str === null || trim($str) == '')
+            return true;
+        return false;
     }
     
     /**

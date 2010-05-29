@@ -22,10 +22,10 @@ class F {
      * @param string $file
      */
     static function __checkFile($file) {
-        if (!file_exists($file))
+    	if (!file_exists($file))
             throw new Exception('File not found: ' . $file);
-            
-        return true;
+    		
+    	return true;
     }
     
     /**
@@ -34,7 +34,7 @@ class F {
      * @param string $content
      */
     static function put($file, $content = '', $fileOption = 'w+') {
-        self::__checkFile($file);
+    	self::__checkFile($file);
     
         $handle = fopen($name, $fileOption);
         fwrite($handle, $data);
@@ -66,8 +66,8 @@ class F {
      * @return string
      */
     static function get($file, $length = FILE_SIZE_FULL) {
-        self::__checkFile($file);
-        
+    	self::__checkFile($file);
+    	
         $handle = fopen($file, (FILE_SIZE_FULL == $length ? filesize($file) : $length));
         return fread ($handle, $length);
     }

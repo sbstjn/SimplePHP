@@ -14,7 +14,7 @@ class SQL {
      * construct is not used
      */
     function __construct() {
-    
+        return null;
     }
     
     /**
@@ -24,9 +24,10 @@ class SQL {
      * @return mixed sql result
      */
     static function __handleQuery($query) {
-        if (defined("SQL_DEBUG")) 
+        if (defined("SQL_DEBUG")) {
             G::debug($query);
-            
+        }
+
         return mysql_query($query);
     }
     
@@ -60,8 +61,9 @@ class SQL {
      * @return string query
      */
     static function __parseWhere($query, $where = array()) {
-        if (count($where) == 0)
+        if (count($where) == 0) {
             return $query;
+        }
            
         $whereOptions = array();
         
@@ -81,7 +83,7 @@ class SQL {
                 $whereOptions[] = $tmpKey . ' <= ' . (int)substr($value, 2);
             } elseif (substr($value, 0, 1) == '<') {
                 $whereOptions[] = $tmpKey . ' < ' . (int)substr($value, 1);
-        } elseif (stristr($value, '*')) {
+            } elseif (stristr($value, '*')) {
                 $whereOptions[] = $tmpKey . ' LIKE \'' . self::__escapeString(str_replace('*', '%', $value)) . '\'';
             } else {
                 $whereOptions[] = $tmpKey . ' = \'' . self::__escapeString($value) . '\'';
@@ -97,12 +99,14 @@ class SQL {
      * @return string
      */
     static function __escapeTableField($key) {
-        if (stristr($key, '.') && stristr($key, '('))
+        if (stristr($key, '.') && stristr($key, '(')) {
             return str_replace(array('.', '(', ')'), array('`.`', '(`', '`)'), $key);
-        elseif (stristr($key, '(') && !stristr($key, '.'))
+        } elseif (stristr($key, '(') && !stristr($key, '.')) {
             return str_replace(array('(', ')'), array('(`', '`)'), $key);
-        elseif (stristr($key, '.'))
+        } elseif (stristr($key, '.')) {
             return '`' . str_replace('.', '`.`', $key) . '`';
+        }
+        
         return '`' . $key . '`';
     }
     
@@ -117,16 +121,49 @@ class SQL {
     }
     
     /**
+     * Parse ORDER BY input
+     * @param array $order
+     * @return string
+     */
+    static function __parseOrder($order) {
+        if (!is_array($order) || count($order) == 0) {
+            return null;
+        }
+        
+        $str = ' ORDER BY ';
+        $orderArray = array();
+        foreach ($order as $key => $direction) {
+            $orderArray[] = self::__escapeString($key) . ' ' . self::__parseOrderDirection($direction);
+        }
+        
+        return $str . implode(', ', $orderArray);
+    }
+    
+    /**
+     * Parse ORDER BY direction
+     * @param string $str 
+     * @return string
+     */
+    static function __parseOrderDirection($str) {
+        if ($str == 'D' || $str == 'DESC') {
+            return "DESC";
+        }
+        
+        return "ASC";
+    }
+    
+    /**
      * Select all lines as array by query
      * @param string $q
      * @return array
      */
     static function __allLinesAsArray($q) {
-        $result = self::__handleQuery($q) or die($q . '<br />' . mysql_error());        
+        $result = self::__handleQuery($q);
         $return = array();
         
-        while ($item = mysql_fetch_array($result, MYSQL_ASSOC))
+        while ($item = mysql_fetch_array($result, MYSQL_ASSOC)) {
             $return[] = $item;
+        }
             
         return $return;
     }
@@ -222,10 +259,11 @@ class SQL {
      * @param string $table
      * @param string $field
      * @param array $where
+     * @param array $order
      * @return string
      */
-    static function getField($table, $field, $where = array()) {
-        $result = self::__handleQuery(self::__parseWhere('SELECT `' . self::__escapeString($field) . '` FROM `' . $table . '` ', $where));
+    static function getField($table, $field, $where = array(), $order = array()) {
+        $result = self::__handleQuery(self::__parseWhere('SELECT `' . self::__escapeString($field) . '` FROM `' . $table . '` ', $where) . self::__parseOrder($order));
         
         if (mysql_num_rows($result) == 0)
             return null;
@@ -284,7 +322,7 @@ class SQL {
     static function addArrayOfLines($table, $lines) {
         // TODO: stop sending each line as a single query
         
-        foreach ($table as $line)
+        foreach ($lines as $line)
             self::newLine($table, $line);
     }
     
@@ -301,11 +339,12 @@ class SQL {
      * Get single line from table
      * @param string $table
      * @param array $where
+     * @param array $order
      * @return array
      */
-    static function getLine($table, $where = array()) {
-        $q = self::__parseWhere('SELECT * FROM `' . $table . '` ', $where);
-        return mysql_fetch_array(self::__handleQuery($q), MYSQL_ASSOC);
+    static function getLine($table, $where = array(), $order = array()) {
+        $query = self::__parseWhere('SELECT * FROM `' . $table . '` ', $where) . self::__parseOrder($order);
+        return mysql_fetch_array(self::__handleQuery($query), MYSQL_ASSOC);
     }
     
     /**
@@ -383,10 +422,11 @@ class SQL {
      * Get all lines from table (wrapper for getLines)
      * @param string $table
      * @param array $where
+     * @param array $order
      * @return array
      */   
-    static function getLines($table, $where = array()) {
-        return self::__allLinesAsArray(self::__parseWhere('SELECT * FROM `' . $table . '` ', $where));
+    static function getLines($table, $where = array(), $order = array()) {
+        return self::__allLinesAsArray(self::__parseWhere('SELECT * FROM `' . $table . '` ', $where) . self::__parseOrder($order));
     }
     
     /**

@@ -23,6 +23,8 @@ class A {
      * @return mixed
      */
     static function first($array) {
+        if (!is_array($array) || count($array) == 0)
+            return null;
         return array_shift($array);
     }
 
@@ -35,23 +37,23 @@ class A {
         return array_map('trim', $array);
     }
 
-    /**
-     * Check if array has items
-     * @param array $array
-     * @return bool
-     */
-    static function hasItems($array) {
-        return !empty($array);
-    }
+	/**
+	 * Check if array has items
+	 * @param array $array
+	 * @return bool
+	 */
+	static function hasItems($array) {
+		return !empty($array);
+	}
 
-    /**
-     * Check if array is empty
-     * @param array $array
-     * @return bool
-     */
-    static function isEmpty($array) {
-        return empty($array);
-    }
+	/**
+	 * Check if array is empty
+	 * @param array $array
+	 * @return bool
+	 */
+	static function isEmpty($array) {
+		return empty($array);
+	}
 
     /**
      * Convert array to CSV string
