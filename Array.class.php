@@ -5,7 +5,7 @@
  * @package SimplePHP
  * @author Sebastian Müller
  * @version 0.1
- * @link http://github.com/hazelcode/SimplePHP
+ * @link http://github.com/sebastianmueller/SimplePHP
  */
  
 class A {
