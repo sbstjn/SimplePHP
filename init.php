@@ -15,7 +15,7 @@
  * @package SimplePHP
  * @author Sebastian Müller
  * @version 0.1
- * @link http://github.com/hazelcode/SimplePHP
+ * @link http://github.com/sebastianmueller/SimplePHP
  */
 
 require_once PATH_SIMPLEPHP . 'init.externalFunctions.php'; 
