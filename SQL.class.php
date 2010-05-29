@@ -478,6 +478,17 @@ class SQL {
     static function getLinesWithOffset($table, $where, $offset = 0, $limit = 50000) {
         return self::__allLinesAsArray(self::__parseWhere('SELECT * FROM `' . $table . '` ', $where) . ' LIMIT ' . (int)$offset . ',' . (int)$limit);
     }  
+    
+    /**
+     * Get all lines from table where field is in array of data
+     * @param string $table
+     * @param string $field
+     * @param array $inArray
+     * @return array
+     */
+    static function getLinesWhereIn($table, $field, $inArray) {
+    	return self::__allLinesAsArray("SELECT * FROM `".mysql_real_escape_string($table)."` WHERE `".mysql_real_escape_string($field)."` IN ('".implode("', '", $inArray)."') ");
+    }
 
     /**
      * Delete rows from table
