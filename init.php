@@ -7,7 +7,7 @@
  *
  * <?php
  *
- * define('PATH_SIMPLEPHP', '/your/absolute/path/to/SimplePHP/');
+ * define('PATH_SIMPLEPHP', '/absolute/path/to/SimplePHP/');
  * require_once PATH_SIMPLEPHP . 'init.php';
  *
  * ?>
