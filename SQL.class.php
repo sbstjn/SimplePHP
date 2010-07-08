@@ -4,7 +4,7 @@
  * Handle MySQL actions
  * @package SimplePHP
  * @author Sebastian Müller
- * @version 0.1
+ * @version 0.2
  * @link http://github.com/sebastianmueller/SimplePHP
  */
  
@@ -71,11 +71,11 @@ class SQL {
             $tmpKey = self::__escapeTableField($key);
             if ($value == '!') {
                 $whereOptions[] = $tmpKey . ' IS NOT NULL';
-            } elseif (substr($value, 0, 1) == '!') {
+            } elseif  (substr($value, 0, 1) == '!') {
                 $whereOptions[] = $tmpKey . ' != ' . (int)substr($value, 1);
             } elseif ($value === null) {
                 $whereOptions[] = $tmpKey . ' IS NULL';
-            } elseif (substr($value, 0, 3) == 'IN ') {
+            } elseif (substr($value, 0, 3) == 'IN ' || substr($value, 0, 3) == 'IN(') {
                 $whereOptions[] = $tmpKey . ' ' . $value;
             } elseif (substr($value, 0, 2) == '>=') {
                 $whereOptions[] = $tmpKey . ' >= ' . (int)substr($value, 2);
@@ -170,6 +170,56 @@ class SQL {
         return $return;
     }
     
+	/**
+     * Check if table is known
+     * @param string $table
+     * @return bool
+     */
+	public static function hasTable($table) {
+		$result = self::__handleQuery('SHOW TABLES LIKE \'' . $table . '\' ');
+		
+		if (mysql_num_rws($result) > 0) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+	
+	/**
+	 * Check if table has given column
+	 * @param string $table 
+	 * @param string $column
+	 * @return bool
+	 */
+	public static function hasColumn($table, $column){
+		$result = self::__handleQuery('SHOW COLUMNS FROM \'' . $table . '\' ');
+		
+		while ($item = mysql_fetch_array($result, MYSQL_ASSOC)) {
+			if ($item['Field'] == $column) {
+				return true;
+			}
+		}
+		
+		return false;
+	}
+
+    /**
+     * Get available values for enumeration column
+     * @param string $table
+     * @param string $column
+     * @return array
+     */
+    static function getEnumValues($table, $column) {
+        $return = array();
+        $result = self::__handleQuery('SHOW COLUMNS FROM `' . mysql_real_escape_string($table) . '` LIKE \'' . mysql_real_escape_string($col) . '\' ');
+        $data   = mysql_fetch_array($result);
+        $enum   = $data['Type'];
+        
+        preg_match_all("/'(.*?)'/", $enum, $pregData);
+        
+        return $pregData[1];
+    }
+
     /**
      * Insert row and replace if needed
      * @param string $table
@@ -265,14 +315,47 @@ class SQL {
      * @return string
      */
     static function getField($table, $field, $where = array(), $order = array()) {
-        $result = self::__handleQuery(self::__parseWhere('SELECT ' . self::__escapeTableField($field) . ' FROM `' . $table . '` ', $where) . self::__parseOrder($order));
+        $result = self::__handleQuery(self::__parseWhere('SELECT `' . self::__escapeString($field) . '` FROM `' . $table . '` ', $where) . self::__parseOrder($order));
         
         if (mysql_num_rows($result) == 0)
             return null;
             
-        return mysql_result($result, 0, 0);
+        return mysql_result($result, 0, $field);
     }
-    
+
+	/**
+     * Get all values for single column
+     * @param string $table
+     * @param string $column
+     * @param array $where
+     * @param array $order
+     * @return array
+     */
+    static function getColumn($table, $columnname, $where = array(), $order = array()) {
+    	$data   = self::__allLinesAsArray(self::__parseWhere('SELECT ' . $columnname . ' FROM `' . $table . '` ', $where) . self::__parseOrder($order));
+    	$result = array();
+    	
+    	foreach($data as $item) {
+    		$result[$item[$columnname]] = $item[$columnname];
+    	}
+    	
+    	return $result;
+    }
+
+	/**
+	 * Wrapper for @self::getColumn
+	 *
+	 * Get all values for single column
+     * @param string $table
+     * @param string $column
+     * @param array $where
+     * @param array $order
+     * @return array
+	 */
+    static function getCol($table, $columnname, $where = array(), $order = array()) {
+		return self::getColumn($table, $columnname, $where, $order);
+	}
+	
     /**
      * Insert line into table
      * @param string $table
@@ -347,7 +430,6 @@ class SQL {
     static function getFunction($func, $table, $where = array(), $order = array()) { 
         return self::getField($table, $func, $where, $order);
     }
-    
     
     /**
      * Get single line from table
