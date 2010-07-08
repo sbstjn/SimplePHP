@@ -265,12 +265,12 @@ class SQL {
      * @return string
      */
     static function getField($table, $field, $where = array(), $order = array()) {
-        $result = self::__handleQuery(self::__parseWhere('SELECT `' . self::__escapeString($field) . '` FROM `' . $table . '` ', $where) . self::__parseOrder($order));
+        $result = self::__handleQuery(self::__parseWhere('SELECT ' . self::__escapeTableField($field) . ' FROM `' . $table . '` ', $where) . self::__parseOrder($order));
         
         if (mysql_num_rows($result) == 0)
             return null;
             
-        return mysql_result($result, 0, $field);
+        return mysql_result($result, 0, 0);
     }
     
     /**
@@ -336,6 +336,18 @@ class SQL {
     static function addArrayOfRows($table, $lines) {
         return self::AddArrayOfLines($table, $lines);
     }
+    
+    /** 
+     * Get simple function from table by where
+     * @param string $func
+     * @param string $table
+     * @param array $where
+     * @return strin
+     */
+    static function getFunction($func, $table, $where = array(), $order = array()) { 
+        return self::getField($table, $func, $where, $order);
+    }
+    
     
     /**
      * Get single line from table
