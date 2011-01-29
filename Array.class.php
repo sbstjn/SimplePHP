@@ -61,12 +61,10 @@ class A {
      * @return string
      */
     static function asCSV($array) {
-        $return = implode(',', array_keys(A::first($array))) . ";
-        \n";
+        $return = implode(',', array_keys(A::first($array))) . ";\n";
         
         foreach ($array as $line) {
-            $return = $return . implode(',', $line) . ";
-            \n";
+            $return = $return . implode(',', $line) . ";\n";
         }
         
         return $return;

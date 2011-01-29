@@ -7,12 +7,14 @@
  * @version 0.1
  * @link http://github.com/semu/SimplePHP
  */
+
 class F {
-    
+
     /**
      * construct is not used
      */
     public function __construct() {
+    
     }
     
     /**
@@ -20,11 +22,11 @@ class F {
      * @param string $file
      */
     static function __checkFile($file) {
-        if (!file_exists($file)) {
-            throw new Exception('File not found: ' . $file);
-        }
-        
-        return true;
+    	if (!file_exists($file)) {
+      		throw new Exception('File not found: ' . $file);
+			}
+    		
+    	return true;
     }
     
     /**
@@ -33,7 +35,8 @@ class F {
      * @param string $content
      */
     static function put($file, $content = '', $fileOption = 'w+') {
-        self::__checkFile($file);
+       	self::__checkFile($file);
+    
         $handle = fopen($name, $fileOption);
         fwrite($handle, $data);
         fclose($handle);
@@ -47,7 +50,7 @@ class F {
     static function write($file, $content = '') {
         return self::put($file, $content);
     }
-    
+
     /**
      * Write data to file (wrapper for put)
      * @param string $file
@@ -56,7 +59,7 @@ class F {
     static function save($file, $content = '') {
         return self::put($file, $content);
     }
-    
+
     /**
      * Get content from file
      * @param string $file
@@ -64,11 +67,12 @@ class F {
      * @return string
      */
     static function get($file, $length = FILE_SIZE_FULL) {
-        self::__checkFile($file);
-        $handle = fopen($file,(FILE_SIZE_FULL == $length ? filesize($file) : $length));
-        return fread($handle, $length);
+    	self::__checkFile($file);
+    	
+      $handle = fopen($file, (FILE_SIZE_FULL == $length ? filesize($file) : $length));
+      return fread ($handle, $length);
     }
-    
+
     /**
      * Get content from file (wrapper for get)
      * @param string $file
@@ -78,7 +82,7 @@ class F {
     static function load($file, $length = FILE_SIZE_FULL) {
         return self::get($file, $length);
     }
-    
+
     /**
      * Get content from file (wrapper for get)
      * @param string $file
@@ -88,5 +92,5 @@ class F {
     static function getContent($file, $length = FILE_SIZE_FULL) {
         return self::get($file, $length);
     }
-}
 
+}
