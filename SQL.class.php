@@ -5,7 +5,7 @@
  * @package SimplePHP
  * @author Sebastian Müller
  * @version 0.2
- * @link http://github.com/sebastianmueller/SimplePHP
+ * @link http://github.com/semu/SimplePHP
  */
  
 class SQL {
@@ -14,6 +14,8 @@ class SQL {
      * construct is not used
      */
     function __construct() {
+    
+
         return null;
     }
     
@@ -21,21 +23,20 @@ class SQL {
      * Handle SQL query
      * edit this for custom sql handling
      * @param string $query
-     * @return mixed sql result
+		 * @return sql result
      */
-    static function __handleQuery($query) {
+    static function __handleQuery($query){
         if (defined("SQL_DEBUG")) {
             G::debug($query);
         }
 
         return mysql_query($query);
     }
-    
     /**
      * Escape data
-     * @param array $data
-     * @return array
-     */
+		 * @param array $data
+		 * @return array
+		 */
     static function __escapeData($data) {
         $keys = array_map('mysql_real_escape_string', array_keys($data));
         $data = array_map('mysql_real_escape_string', $data);
@@ -57,7 +58,7 @@ class SQL {
     /**
      * Parse where
      * @param string $query
-     * @param array $where key => value
+     * @param array $where
      * @return string query
      */
     static function __parseWhere($query, $where = array()) {
@@ -69,13 +70,13 @@ class SQL {
         
         foreach ($where as $key => $value) {
             $tmpKey = self::__escapeTableField($key);
-            if ($value == '!') {
-                $whereOptions[] = $tmpKey . ' IS NOT NULL';
-            } elseif  (substr($value, 0, 1) == '!') {
+            if (substr($value, 0, 1) == '!' && stristr($value, '%')) {
+                $whereOptions[] = $tmpKey . ' NOT LIKE \'' . substr($value, 1) . '\'';
+            } elseif (substr($value, 0, 1) == '!') {
                 $whereOptions[] = $tmpKey . ' != ' . (int)substr($value, 1);
-            } elseif ($value === null) {
+            } elseif ($value === null || $value == 'NULL') {
                 $whereOptions[] = $tmpKey . ' IS NULL';
-            } elseif (substr($value, 0, 3) == 'IN ' || substr($value, 0, 3) == 'IN(') {
+            } elseif (substr($value, 0, 3) == 'IN ') {
                 $whereOptions[] = $tmpKey . ' ' . $value;
             } elseif (substr($value, 0, 2) == '>=') {
                 $whereOptions[] = $tmpKey . ' >= ' . (int)substr($value, 2);
@@ -83,8 +84,8 @@ class SQL {
                 $whereOptions[] = $tmpKey . ' > ' . (int)substr($value, 1);
             } elseif (substr($value, 0, 2) == '<=') {
                 $whereOptions[] = $tmpKey . ' <= ' . (int)substr($value, 2);
-            } elseif (substr($value, 0, 1) == '<') {
-                $whereOptions[] = $tmpKey . ' < ' . (int)substr($value, 1);
+            } elseif (substr($value, 0, 1) == '<' && is_int(substr($value, 1)) ) {
+                $whereOptions[] = $tmpKey . ' < ' . substr($value, 1);
             } elseif (stristr($value, '*')) {
                 $whereOptions[] = $tmpKey . ' LIKE \'' . self::__escapeString(str_replace('*', '%', $value)) . '\'';
             } else {
@@ -113,7 +114,7 @@ class SQL {
     }
     
     /**
-     * Create select statement for given $key as $alias
+     * Create select statement
      * @param string $key
      * @param string $alias
      * @return string
@@ -170,38 +171,55 @@ class SQL {
         return $return;
     }
     
-	/**
-     * Check if table is known
-     * @param string $table
-     * @return bool
-     */
-	public static function hasTable($table) {
-		$result = self::__handleQuery('SHOW TABLES LIKE \'' . $table . '\' ');
-		
-		if (mysql_num_rws($result) > 0) {
-			return true;
-		} else {
-			return false;
+		/**
+			* Check if table is known
+			* @param string $table
+			* @return bool
+			*/
+		public static function hasTable($table) {
+				$result = self::__handleQuery('SHOW TABLES LIKE \'' . $table . '\' ');
+				
+				if (mysql_num_rws($result) > 0) {
+						return true;
+				} else {
+						return false;
+				}
 		}
-	}
+		
+		/**
+		 * Check if table has given column
+		 * @param string $table 
+		 * @param string $column
+		 * @return bool
+		 */
+		public static function hasColumn($table, $column) {
+				$result = self::__handleQuery('SHOW COLUMNS FROM \'' . $table . '\' ');
+				
+				while ($item = mysql_fetch_array($result, MYSQL_ASSOC)) {
+						if ($item['Field'] == $column) {
+								return true;
+						}
+				}
+				
+				return false;
+		}
 	
-	/**
-	 * Check if table has given column
-	 * @param string $table 
-	 * @param string $column
-	 * @return bool
-	 */
-	public static function hasColumn($table, $column){
-		$result = self::__handleQuery('SHOW COLUMNS FROM \'' . $table . '\' ');
-		
-		while ($item = mysql_fetch_array($result, MYSQL_ASSOC)) {
-			if ($item['Field'] == $column) {
-				return true;
-			}
-		}
-		
-		return false;
-	}
+	  /**
+	   * Check if table has Index
+	   * @param string $table
+	   * @param string $name
+	   * @return bool
+	   **/
+    public static function hasIndex($table, $name) {
+        $result = mysql_query('SHOW INDEX FROM \'' . $table . '\' ');
+        while ($item = mysql_fetch_array($result, MYSQL_ASSOC)) {
+            if ($item['Column_name'] == $name) {
+                return true;
+            }
+        }
+        
+        return false;
+    }	
 
     /**
      * Get available values for enumeration column
@@ -220,12 +238,12 @@ class SQL {
         return $pregData[1];
     }
 
-    /**
-     * Insert row and replace if needed
-     * @param string $table
-     * @param array $data
-     * @param array $keys
-     */
+		/**
+		 * Insert row and replace if needed
+		 * @param string $table
+		 * @param array $data
+		 * @param array $keys
+		 */
     static function insertAndReplace($table, $data, $keys) {
         $d = self::__escapeData($data);
         $k = self::__escapeData($keys);
@@ -238,7 +256,7 @@ class SQL {
     }  
     
     /**
-     * Replaces data in table - $data must contain all columns of $table
+     * Replaces data in table - data must contain all columns of table
      * @param string $table
      * @param array $data
      */
@@ -252,7 +270,7 @@ class SQL {
     /**
      * Update rows in table
      * @param string $table
-     * @param array $update
+     * @param array $data update
      * @param array $where
      * @return mixed
      */
@@ -309,9 +327,9 @@ class SQL {
     /**
      * Get single field from table
      * @param string $table
-     * @param string $field
-     * @param array $where
-     * @param array $order
+     * @param string $field     
+     * @param array $where 
+     * @param array $order   
      * @return string
      */
     static function getField($table, $field, $where = array(), $order = array()) {
@@ -326,7 +344,7 @@ class SQL {
 	/**
      * Get all values for single column
      * @param string $table
-     * @param string $column
+     * @param string $columnname
      * @param array $where
      * @param array $order
      * @return array
@@ -346,11 +364,11 @@ class SQL {
 	 * Wrapper for @self::getColumn
 	 *
 	 * Get all values for single column
-     * @param string $table
-     * @param string $column
-     * @param array $where
-     * @param array $order
-     * @return array
+	 * @param string $table
+	 * @param string $columnname
+	 * @param array $where
+	 * @param array $order
+	 * @return array
 	 */
     static function getCol($table, $columnname, $where = array(), $order = array()) {
 		return self::getColumn($table, $columnname, $where, $order);
@@ -372,7 +390,7 @@ class SQL {
     /**
      * Insert line into table (wrapper for newLine)
      * @param string $table
-     * @param array $data
+		 * @param array $data
      * @return mixed
      */
     static function addLine($table, $data) {
@@ -380,11 +398,11 @@ class SQL {
     }
     
     /**
-     * Insert line into table (wrapper for newLine)
-     * @param string $table
-     * @param array $data
-     * @return mixed
-     */
+		 * Insert line into table (wrapper for newLine)
+		 * @param string $table
+		 * @param array $data
+		 * @return mixed
+		 */
     static function newRow($table, $data) {
         return self::newLine($table, $data);
     }
@@ -421,13 +439,14 @@ class SQL {
     }
     
     /** 
-     * Get simple function from table by where
+     * Get simple from table by where
      * @param string $func
      * @param string $table
-     * @param array $where
+		 * @param array $where
+		 * @param array $order 
      * @return strin
      */
-    static function getFunction($func, $table, $where = array(), $order = array()) { 
+    static function getFunction ($func, $table, $where = array(), $order = array()) { 
         return self::getField($table, $func, $where, $order);
     }
     
@@ -443,12 +462,12 @@ class SQL {
         return mysql_fetch_array(self::__handleQuery($query), MYSQL_ASSOC);
     }
     
-    /**
-     * Get single line from table (wrapper for getLine)
-     * @param string $table
-     * @param array $where
-     * @return array
-     */    
+	  /**
+	   * Get single line from table (wrapper for getLine)
+	   * @param string $table
+	   * @param array $where
+	   * @return array     
+	 	 */
     static function getSingleLine($table, $where = array()) {
         return self::getLine($table, $where);
     } 
@@ -494,12 +513,12 @@ class SQL {
         return self::rows($table, $where);
     }
     
-    /**
-     * Count rows in table (wrapper for rows)
-     * @param string $table
-     * @param array $where
-     * @return int
-     */
+		/**
+		 * Count rows in table (wrapper for rows)
+		 * @param string $table
+		 * @param array $where
+		 * @return int
+		 */
     static function countRows($table, $where = array()) {
         return self::rows($table, $where);
     }
@@ -594,12 +613,12 @@ class SQL {
     static function removeRows($table, $where = array()) {
         self::remove($table, $where);
     }
-        
-    /**
+     
+    /** 
      * Delete rows from table
-     * @param string $table
-     * @param array $where
-     */
+		 * @param string $table
+		 * @param array $where
+		 */
     static function removeLines($table, $where = array()) {
         self::remove($table, $where);
     }
