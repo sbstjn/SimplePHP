@@ -13,7 +13,7 @@
  * ?>
  *
  * @package SimplePHP
- * @author Sebastian Müller
+ * @author Sebastian MÃ¼ller
  * @version 0.1
  * @link http://github.com/semu/SimplePHP
  */
